@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
  
-namespace SoftwareDefinedPlc.Backplane
+namespace SoftwareDefinedPlc.Bus
 {
     public interface IBackplane
     {

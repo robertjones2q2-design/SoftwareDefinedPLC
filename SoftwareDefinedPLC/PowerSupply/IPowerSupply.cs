@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
  
-namespace SoftwareDefinedPlc.PowerSupply
+namespace SoftwareDefinedPlc.Power
 {
     public interface IPowerSupply
     {

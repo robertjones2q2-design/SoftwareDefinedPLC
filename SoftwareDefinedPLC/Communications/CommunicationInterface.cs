@@ -4,7 +4,7 @@ using System.Linq;
  
 namespace SoftwareDefinedPlc.Communications
 {
-    ublic abstract class CommunicationInterface : ICommunicationInterface
+    public abstract class CommunicationInterface : ICommunicationInterface
     {
         public abstract string Protocol { get; }
         public bool IsConnected { get; protected set; }

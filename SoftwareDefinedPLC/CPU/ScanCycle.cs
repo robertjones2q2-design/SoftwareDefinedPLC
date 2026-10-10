@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SoftwareDefinedPlc.Cpu
+namespace SoftwareDefinedPlc.Core
 {
     public sealed class ScanCycle : IScanCycle
     {

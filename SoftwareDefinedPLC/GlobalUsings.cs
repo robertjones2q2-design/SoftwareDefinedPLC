@@ -1,0 +1,10 @@
+global using SoftwareDefinedPlc.Bus;
+global using SoftwareDefinedPlc.Communications;
+global using SoftwareDefinedPlc.Core;
+global using SoftwareDefinedPlc.IO;
+global using SoftwareDefinedPlc.IO.Input;
+global using SoftwareDefinedPlc.IO.Output;
+global using SoftwareDefinedPlc.LogicPrograms;
+global using SoftwareDefinedPlc.Memory;
+global using SoftwareDefinedPlc.Power;
+global using SoftwareDefinedPlc.ProgrammingDevices;

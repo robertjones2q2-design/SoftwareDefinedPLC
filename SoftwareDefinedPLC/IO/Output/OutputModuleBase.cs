@@ -14,5 +14,6 @@ namespace SoftwareDefinedPlc.IO.Output
  
         protected OutputModuleBase(int slot, int baseAddress) { Slot = slot; BaseAddress = baseAddress; }
         public abstract void WriteFrom(IDataMemory image);
+        public abstract void ApplyFailSafe();
     }
 }

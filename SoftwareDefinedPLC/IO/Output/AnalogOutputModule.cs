@@ -15,6 +15,11 @@ namespace SoftwareDefinedPlc.IO.Output
  
         public void Wire(int channel, IAnalogSink sink) => _channels[channel] = sink;
  
+        public override void ApplyFailSafe()
+        {
+            for (int i = 0; i < _channels.Length; i++) _channels[i]?.Write(0.0);
+        }
+
         public override void WriteFrom(IDataMemory image)
         {
             for (int i = 0; i < _channels.Length; i++)

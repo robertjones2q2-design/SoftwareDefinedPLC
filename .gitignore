@@ -3,3 +3,5 @@
 *.pdb
 /SoftwareDefinedPLC/bin/
 /SoftwareDefinedPLC/obj/
+/SoftwareDefinedPLC.Tests/bin/
+/SoftwareDefinedPLC.Tests/obj/

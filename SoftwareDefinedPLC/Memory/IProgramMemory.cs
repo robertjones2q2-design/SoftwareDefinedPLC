@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace SoftwareDefinedPlc.Memory
 {
+    /// <summary>Holds named program instances that tasks bind to by name (TaskConfig.ProgramInstances).</summary>
     public interface IProgramMemory
     {
-        ILogicProgram? Current { get; }
-        void Store(ILogicProgram program);
+        int Count { get; }
+        void Store(ILogicProgram program);          // replaces an instance with the same Name
+        ILogicProgram? Find(string name);
+        void Clear();
     }
 }

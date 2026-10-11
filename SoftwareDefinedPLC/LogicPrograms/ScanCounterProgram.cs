@@ -13,12 +13,12 @@ namespace SoftwareDefinedPlc.LogicPrograms
         public static readonly Address ScanCountAddress = new(0);
         public static readonly Address HeartbeatAddress = new(1);
 
-        public void Execute(IDataMemory i, IDataMemory q, IDataMemory m)
+        public void Execute(in ScanContext ctx)
         {
-            double count = m.ReadWord(ScanCountAddress) + 1;
-            m.WriteWord(ScanCountAddress, count);
+            double count = ctx.Memory.ReadWord(ScanCountAddress) + 1;
+            ctx.Memory.WriteWord(ScanCountAddress, count);
             if (count % HalfPeriodScans == 0)
-                q.WriteBit(HeartbeatAddress, !q.ReadBit(HeartbeatAddress));
+                ctx.Images.Outputs.WriteBit(HeartbeatAddress, !ctx.Images.Outputs.ReadBit(HeartbeatAddress));
         }
     }
 }

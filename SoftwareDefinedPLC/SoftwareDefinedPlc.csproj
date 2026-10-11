@@ -6,4 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>SoftwareDefinedPlc</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- Tests live in tests/ and are built by their own project. -->
+    <Compile Remove="tests/**" />
+    <InternalsVisibleTo Include="SoftwareDefinedPlc.Tests" />
+  </ItemGroup>
 </Project>

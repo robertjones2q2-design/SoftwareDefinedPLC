@@ -8,3 +8,4 @@ global using SoftwareDefinedPlc.LogicPrograms;
 global using SoftwareDefinedPlc.Memory;
 global using SoftwareDefinedPlc.Power;
 global using SoftwareDefinedPlc.ProgrammingDevices;
+global using SoftwareDefinedPlc.Scheduling;

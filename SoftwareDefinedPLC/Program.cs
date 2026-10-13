@@ -56,7 +56,7 @@ using (var report = new PeriodicTimer(TimeSpan.FromSeconds(1)))
         Console.WriteLine($"M0 scans={programmer.MonitorWord(ScanCounterProgram.ScanCountAddress),5} | " +
                           $"exec last {stats.Last.TotalMicroseconds,5:F0} us max {stats.Max.TotalMicroseconds,5:F0} us | " +
                           $"jitter max {stats.JitterMax.TotalMicroseconds,6:F0} us | overruns {stats.OverrunCount} | " +
-                          $"I0={programmer.MonitorBit(new Address(0)),-5} Q0={motor.State,-5} Q1={heartbeat.State}");
+                          $"I0={programmer.MonitorBit(Address.Parse("%IX0.0")),-5} Q0={motor.State,-5} Q1={heartbeat.State}");
     }
 }
 

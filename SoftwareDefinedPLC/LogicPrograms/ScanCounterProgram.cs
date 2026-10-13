@@ -1,8 +1,8 @@
 namespace SoftwareDefinedPlc.LogicPrograms
 {
     /// <summary>
-    /// Proof-of-life program. Every scan it increments M word 0 (scan counter)
-    /// and toggles output bit Q1 every <see cref="HalfPeriodScans"/> scans (heartbeat).
+    /// Proof-of-life program. Every scan it increments %MD0 (a DINT scan counter, which no longer loses
+    /// integer behavior beyond 2^53) and toggles output bit %QX0.1 every <see cref="HalfPeriodScans"/> scans.
     /// </summary>
     public sealed class ScanCounterProgram : ILogicProgram
     {
@@ -10,15 +10,15 @@ namespace SoftwareDefinedPlc.LogicPrograms
         public ProgramLanguage Language => ProgramLanguage.ST;
         public int HalfPeriodScans { get; init; } = 25;
 
-        public static readonly Address ScanCountAddress = new(0);
-        public static readonly Address HeartbeatAddress = new(1);
+        public static readonly Address ScanCountAddress = Address.Parse("%MD0");
+        public static readonly Address HeartbeatAddress = Address.Parse("%QX0.1");
 
         public void Execute(in ScanContext ctx)
         {
-            double count = ctx.Memory.ReadWord(ScanCountAddress) + 1;
-            ctx.Memory.WriteWord(ScanCountAddress, count);
+            int count = unchecked(ctx.Memory.ReadInt32(ScanCountAddress) + 1);
+            ctx.Memory.WriteInt32(ScanCountAddress, count);
             if (count % HalfPeriodScans == 0)
-                ctx.Images.Outputs.WriteBit(HeartbeatAddress, !ctx.Images.Outputs.ReadBit(HeartbeatAddress));
+                ctx.Images.Outputs.WriteBool(HeartbeatAddress, !ctx.Images.Outputs.ReadBool(HeartbeatAddress));
         }
     }
 }

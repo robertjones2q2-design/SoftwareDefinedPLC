@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
- 
 namespace SoftwareDefinedPlc.IO
 {
     public interface IIoModule
@@ -10,5 +6,8 @@ namespace SoftwareDefinedPlc.IO
         int ChannelCount { get; }
         bool IsIsolated { get; }          // optocoupler / transformer isolation
         ModuleStatus Status { get; }
+
+        /// <summary>MEM-13: the part of the I or Q image this module occupies. Used for overlap and range checks.</summary>
+        ImageRange ImageRange { get; }
     }
 }

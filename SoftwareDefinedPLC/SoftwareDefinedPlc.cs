@@ -9,7 +9,7 @@ namespace SoftwareDefinedPlc
     public enum OutputType { Relay, Transistor, Triac }
     public enum ProgramLanguage { LD, FBD, ST, IL, SFC }   // IEC 61131-3
 
-    public readonly record struct Address(int Index);       // simple bit/word address
+    // Address moved to SoftwareDefinedPlc.Memory (Spec 2, MEM-2).
 
     // ------------------------------------------------------------------
     // Field-side abstractions (sensors and actuators)
@@ -55,20 +55,23 @@ namespace SoftwareDefinedPlc
         public CpuMode Mode => Cpu.Mode;
         public string? LastModeError { get; private set; }
 
-        public Plc(IPowerSupply power, SchedulerOptions? options = null)
+        public Plc(IPowerSupply power, SchedulerOptions? options = null, MemoryLayout? layout = null)
         {
             Power = power;
-            Cpu = new Cpu(power, Backplane, ProgramMemory, _comms, options);
+            Cpu = new Cpu(power, Backplane, ProgramMemory, _comms, options, layout);
             Cpu.CompleteStartup();      // no hardware configuration to load yet (Spec 7)
         }
 
-        public void SetMode(CpuMode mode)
+        public void SetMode(CpuMode mode) => SetMode(mode, Cpu.RunRestart);
+
+        /// <summary>Like <see cref="SetMode(CpuMode)"/>, choosing the restart type (MEM-10) when entering Run.</summary>
+        public void SetMode(CpuMode mode, RestartType restart)
         {
             LastModeError = null;
             switch (mode)
             {
                 case CpuMode.Run:
-                    if (!Cpu.TryEnterRun(out var runError)) LastModeError = runError;
+                    if (!Cpu.TryEnterRun(restart, out var runError)) LastModeError = runError;
                     break;
                 case CpuMode.Stop:
                     if (!Cpu.RequestStop("Operator command", out var stopError)) LastModeError = stopError;
@@ -82,6 +85,7 @@ namespace SoftwareDefinedPlc
         {
             if (Mode == CpuMode.Run) throw new InvalidOperationException("Stop the CPU before download.");
             ProgramMemory.Store(program);
+            Cpu.NotifyProjectChanged();
         }
 
         public void ConfigureTasks(IReadOnlyList<TaskConfig> tasks)

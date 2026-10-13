@@ -1,9 +1,9 @@
 namespace SoftwareDefinedPlc.Scheduling
 {
     /// <summary>
-    /// Replaces ScanCycle: one runner per task. A scan is read inputs, execute bound programs,
-    /// write outputs, signal housekeeping (SCAN-12). Steady state allocates nothing (SCAN-5):
-    /// module and program lists are resolved to arrays once, when the runner is built.
+    /// One runner per task. A scan is: latch inputs into the task's private image, execute bound programs
+    /// (each under the M/D write lock), commit outputs, write modules from the field copy, signal housekeeping
+    /// (SCAN-12, MEM-7). Steady state allocates nothing (SCAN-5).
     /// </summary>
     internal sealed class TaskRunner
     {
@@ -11,8 +11,8 @@ namespace SoftwareDefinedPlc.Scheduling
         private readonly string[] _programNames;
         private readonly IInputModule[] _inputs;
         private readonly IOutputModule[] _outputs;
-        private readonly IProcessImage _images;
-        private readonly IDataMemory _memory;
+        private readonly ProcessImage _image;
+        private readonly DataMemory _memory;
         private readonly HousekeepingWorker? _housekeeping;
         private readonly SemaphoreSlim _eventSignal = new(0);
         private long _scanStartTs;
@@ -23,8 +23,8 @@ namespace SoftwareDefinedPlc.Scheduling
         {
             Config = config;
             Stats = stats;
-            _images = env.Images;
             _memory = env.Memory;
+            _image = new ProcessImage(env.Memory, env.Forces);
             _housekeeping = env.Housekeeping;
             _inputs  = env.Backplane.Modules.OfType<IInputModule>().ToArray();
             _outputs = env.Backplane.Modules.OfType<IOutputModule>().ToArray();
@@ -70,21 +70,23 @@ namespace SoftwareDefinedPlc.Scheduling
             {
                 long n = _scanNumber + 1;
                 Volatile.Write(ref _scanNumber, n);
-                var ctx = new ScanContext(n, now, delta, Config.Name, _images, _memory);
+                var ctx = new ScanContext(n, now, delta, Config.Name, _image, _memory);
 
-                for (int i = 0; i < _inputs.Length; i++) _inputs[i].ReadInto(_images.Inputs);
+                _image.LatchInputs(_inputs);
 
                 for (int i = 0; i < _programs.Length; i++)
                 {
                     _currentProgram = i;
-                    _programs[i].Execute(in ctx);
+                    using (_memory.BeginExecute())          // MEM-8: held for one program execute, hold time recorded
+                        _programs[i].Execute(in ctx);
                 }
                 _currentProgram = -1;
 
                 // A fault while we were executing: outputs were already driven to fail-safe; never overwrite that.
                 if (s.Aborted) return Clock.Now;
 
-                for (int i = 0; i < _outputs.Length; i++) _outputs[i].WriteFrom(_images.Outputs);
+                _image.CommitOutputs();
+                for (int i = 0; i < _outputs.Length; i++) _outputs[i].WriteFrom(_image.FieldOutputs);
                 _housekeeping?.Signal();
 
                 long end = Clock.Now;

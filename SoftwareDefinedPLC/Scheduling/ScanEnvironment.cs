@@ -5,8 +5,9 @@ namespace SoftwareDefinedPlc.Scheduling
     {
         public required IProgramMemory Programs { get; init; }
         public required IBackplane Backplane { get; init; }
-        public required IProcessImage Images { get; init; }
-        public required IDataMemory Memory { get; init; }
+        /// <summary>Shared memory (areas I, Q, M, D). Each task builds its own <see cref="ProcessImage"/> on top of it.</summary>
+        public required DataMemory Memory { get; init; }
+        public required ForceTable Forces { get; init; }
         public HousekeepingWorker? Housekeeping { get; init; }
     }
 }
